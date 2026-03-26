@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Isa 💖</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Floating Background Hearts -->
+    <div class="bg-hearts" id="bg-hearts"></div>
+
+    <div id="start-screen" class="screen active">
+        <h1>¡Hola Isa!</h1>
+        <p>Tengo una sorpresita para ti 💕</p>
+        <button id="start-btn">Descubrir 🕊️</button>
+    </div>
+
+    <div id="game-screen" class="screen">
+        <div id="score">Puntos: <span id="score-val">0</span></div>
+        <div id="game-area">
+            <div class="invuln-aura"></div>
+            <!-- El compañero (detrás) -->
+            <div id="partner-pigeon" style="z-index: 24; opacity: 0;"><span style="display:inline-block; transform: scaleX(-1);">🦆</span></div>
+            <!-- Jugador principal -->
+            <div id="pigeon"><span style="display:inline-block; transform: scaleX(-1);">🕊️</span></div>
+        </div>
+        <button id="flap-btn">¡Vuela!</button>
+    </div>
+
+    <div id="game-over-screen" class="screen">
+        <h2>¡Oh no!</h2>
+        <p>Tu palomita se cansó.</p>
+        <p>Puntuación: <span id="final-score-val">0</span> 💖</p>
+        <button id="restart-btn">Intentar de nuevo</button>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ffe6f0;
+    font-family: 'Quicksand', sans-serif;
+    color: #ff6699;
+    overflow: hidden; /* For mini game */
+    touch-action: none;
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h1, h2 {
+    font-family: 'Fredoka One', cursive;
+    color: #ff3377;
+    margin-bottom: 10px;
+}
+
+/* Floating background hearts */
+.bg-hearts {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.bg-heart {
+    position: absolute;
+    bottom: -10%;
+    font-size: 24px;
+    animation: floatUp 6s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.6; }
+    80% { opacity: 0.6; }
+    100% { transform: translateY(-120vh) scale(1.5) rotate(45deg); opacity: 0; }
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    text-align: center;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: all;
+    z-index: 20;
+}
+
+#start-screen {
+    background: radial-gradient(circle, #fff0f5 0%, #ffcce0 100%);
+}
+
+#start-screen h1 {
+    font-size: 3.5rem;
+    text-shadow: 3px 3px 0px #fff, 0 0 20px rgba(255, 51, 119, 0.4);
+    padding: 0 10px;
+    animation: titleFloat 3s ease-in-out infinite;
+}
+
+@keyframes titleFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
+
+#start-screen p {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: #ff4d88;
+    animation: pulseText 2s infinite;
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+button {
+    background-color: #ff4d88;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    cursor: pointer;
+    box-shadow: 0 8px 0 #cc3366, 0 15px 20px rgba(255, 77, 136, 0.4);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    outline: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -100%; width: 200%; height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+button:hover {
+    transform: scale(1.05) translateY(-4px);
+    box-shadow: 0 12px 0 #cc3366, 0 20px 25px rgba(255, 77, 136, 0.5);
+}
+
+button:hover::after {
+    left: 100%;
+}
+
+button:active {
+    transform: translateY(8px);
+    box-shadow: 0 0px 0 #cc3366, 0 2px 5px rgba(255, 77, 136, 0.4);
+}
+
+/* GAME SCREEN */
+#game-screen {
+    background: linear-gradient(180deg, 
+      #b3e6ff 0%, #ffe6f0 10%, /* Day */
+      #ff99bb 25%, #ffccff 35%, /* Sunset */
+      #000033 50%, #1a0033 60%, /* Night */
+      #ffcc99 75%, #ffffcc 85%, /* Dawn */
+      #b3e6ff 100% /* Day */
+    );
+    background-size: 100% 1000%;
+    animation: dayNightCycle 40s linear infinite;
+    justify-content: flex-start;
+}
+
+#game-screen::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    /* Star pattern using multiple radial gradients */
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 3px),
+        radial-gradient(white, rgba(255,255,255,0.15) 1px, transparent 2px),
+        radial-gradient(white, rgba(255,255,255,0.1) 2px, transparent 3px);
+    background-size: 100px 100px, 60px 60px, 150px 150px;
+    background-position: 0 0, 30px 30px, 75px 15px;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    animation: starsFade 40s linear infinite;
+}
+
+/* Efecto de viñeta para la tormenta */
+#game-screen::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle, transparent 40%, rgba(0,0,30,0.8) 150%);
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+#game-screen.storm-active::after {
+    opacity: 1;
+}
+
+@keyframes dayNightCycle {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 0% 100%; }
+}
+
+/* Estado de tormenta: Pausa el ciclo y fuerza la noche */
+#game-screen.storm-active {
+    animation-play-state: paused !important;
+    background-position: 0% 55% !important; /* Posición aproximada de la noche en el gradient */
+}
+
+#game-screen.storm-active::before {
+    opacity: 0.9 !important; /* Estrellas siempre visibles en tormenta */
+}
+
+@keyframes starsFade {
+    0%, 35% { opacity: 0; }
+    45%, 65% { opacity: 0.9; }
+    75%, 100% { opacity: 0; }
+}
+
+.affection-phrase {
+    position: absolute;
+    color: #ff1a66;
+    font-weight: bold;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white;
+    z-index: 50;
+    pointer-events: none;
+    animation: floatPhrase 1.5s ease-out forwards;
+    white-space: nowrap;
+}
+
+@keyframes floatPhrase {
+    0% { transform: translateY(0) scale(0.5); opacity: 1; }
+    40% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1); opacity: 0; }
+}
+
+#score {
+    width: 100%;
+    padding: 20px 20px 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: 'Fredoka One', cursive;
+    color: #ff3377;
+    z-index: 30;
+    text-align: left;
+    text-shadow: 2px 2px white;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#score.bounce {
+    transform: scale(1.3);
+    color: #ff0055;
+}
+
+#game-area {
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+    overflow: hidden;
+}
+
+#pigeon, #partner-pigeon {
+    position: absolute;
+    left: 40px;
+    top: 50%;
+    font-size: 3.5rem;
+    transform: translateY(-50%);
+    z-index: 25;
+}
+
+#partner-pigeon {
+    z-index: 24;
+}
+
+.obstacle {
+    position: absolute;
+    bottom: 0;
+    width: 50px;
+    background: linear-gradient(#ff80b3, #ff3377);
+    border-radius: 25px 25px 0 0;
+    box-shadow: 2px 2px 10px rgba(255, 51, 119, 0.4);
+    border: 3px solid #ffb3d1;
+    border-bottom: none;
+}
+
+.obstacle.top {
+    top: 0;
+    bottom: auto;
+    border-radius: 0 0 25px 25px;
+    border: 3px solid #ffb3d1;
+    border-top: none;
+}
+
+.heart-pickup {
+    position: absolute;
+    font-size: 2.2rem;
+    z-index: 20;
+    animation: beat 1s infinite alternate;
+}
+
+@keyframes beat {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+}
+
+#flap-btn {
+    width: 90%;
+    margin: 10px auto 20px auto;
+    padding: 20px;
+    font-size: 2rem;
+    border-radius: 40px;
+    background-color: #ff3377;
+    box-shadow: 0 8px 0 #cc0044, 0 12px 20px rgba(255, 51, 119, 0.4);
+}
+
+#flap-btn:active {
+    transform: translateY(8px);
+    box-shadow: 0 0px 0 #cc0044, 0 4px 6px rgba(255, 51, 119, 0.4);
+}
+
+#game-over-screen {
+    background: radial-gradient(circle, rgba(255,240,245,0.98) 0%, rgba(255,204,224,0.98) 100%);
+    backdrop-filter: blur(8px);
+}
+
+#game-over-screen h2 {
+    font-size: 4.5rem;
+    text-shadow: 4px 4px 0px #fff, 0 0 25px rgba(255, 51, 119, 0.6);
+    margin-bottom: 20px;
+    animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#game-over-screen p {
+    font-size: 1.6rem;
+    margin-bottom: 25px;
+    font-weight: bold;
+    color: #ff3377;
+}
+
+#final-score-val {
+    font-size: 4rem;
+    color: #ff0055;
+    text-shadow: 3px 3px white;
+    display: inline-block;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    10%, 30% { transform: scale(1.15); }
+    20% { transform: scale(1.05); }
+}
+
+/* --- GAME JUICE EFFECTS --- */
+
+.ripple {
+    position: absolute;
+    border: 4px solid #ff3377;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 55;
+    animation: rippleAnim 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes rippleAnim {
+    0% { width: 0px; height: 0px; margin-top: 0px; margin-left: 0px; opacity: 1; border-width: 10px; }
+    100% { width: 140px; height: 140px; margin-top: -70px; margin-left: -70px; opacity: 0; border-width: 0px; }
+}
+
+.particle {
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 20;
+    transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s linear;
+}
+
+.sparkle {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+    box-shadow: 0 0 5px #fff, 0 0 10px #ffccff;
+    animation: sparkleFloat var(--duration) linear infinite;
+}
+
+@keyframes sparkleFloat {
+    0% { transform: translate(0, 0) scale(0); opacity: 0; }
+    20% { opacity: 0.8; transform: translate(-20px, -20px) scale(1); }
+    80% { opacity: 0.8; transform: translate(-80px, -80px) scale(1); }
+    100% { transform: translate(-100px, -100px) scale(0); opacity: 0; }
+}
+
+.trail-pigeon {
+    position: absolute;
+    font-size: 3.5rem;
+    pointer-events: none;
+    z-index: 15;
+    opacity: 0.6;
+    filter: blur(2px) brightness(1.2);
+    transition: transform 0.3s linear, opacity 0.3s linear;
+}
+
+#flash-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ff0044;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.flash-anim {
+    animation: flash 0.6s ease-out forwards;
+}
+
+@keyframes flash {
+    0% { opacity: 0.9; }
+    100% { opacity: 0; }
+}
+
+@keyframes shake {
+    0% { transform: translate(2px, 2px) rotate(0deg); }
+    10% { transform: translate(-2px, -3px) rotate(-1deg); }
+    20% { transform: translate(-4px, 0px) rotate(2deg); }
+    30% { transform: translate(4px, 3px) rotate(0deg); }
+    40% { transform: translate(2px, -2px) rotate(2deg); }
+    50% { transform: translate(-2px, 3px) rotate(-1deg); }
+    60% { transform: translate(-4px, 2px) rotate(0deg); }
+    70% { transform: translate(4px, 2px) rotate(-2deg); }
+    80% { transform: translate(-2px, -2px) rotate(1deg); }
+    90% { transform: translate(2px, 3px) rotate(0deg); }
+    100% { transform: translate(2px, -3px) rotate(-1deg); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* --- ADVANCED MECHANICS --- */
+
+#storm-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 40, 0.5);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 2s linear;
+}
+
+#storm-overlay.active {
+    opacity: 1;
+}
+
+.lightning {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+    z-index: 11;
+    opacity: 0;
+    animation: lightningStrike 0.4s ease-out;
+}
+
+@keyframes lightningStrike {
+    0% { opacity: 1; }
+    20% { opacity: 0; }
+    40% { opacity: 0.8; }
+    100% { opacity: 0; }
+}
+
+.rain-drop {
+    position: absolute;
+    width: 2px;
+    height: 15px;
+    background: rgba(200, 220, 255, 0.6);
+    animation: fallRain 0.5s linear infinite;
+    z-index: 12;
+    pointer-events: none;
+}
+
+@keyframes fallRain {
+    0% { transform: translateY(-20px) rotate(15deg); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(100vh) rotate(15deg); opacity: 0; }
+}
+
+.invulnerable {
+    filter: drop-shadow(0 0 15px #ffd700) brightness(1.5) saturate(1.5);
+}
+
+.invuln-aura {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border: 8px solid rgba(255, 215, 0, 0.3);
+    pointer-events: none;
+    z-index: 99;
+    opacity: 0;
+    transition: opacity 0.5s;
+    animation: pulseGold 1s infinite alternate;
+}
+
+.invuln-aura.active {
+    opacity: 1;
+}
+
+@keyframes pulseGold {
+    0% { box-shadow: inset 0 0 20px rgba(255, 215, 0, 0.2); }
+    100% { box-shadow: inset 0 0 80px rgba(255, 215, 0, 0.6); }
+}
+
+.obstacle.center {
+    top: auto;
+    bottom: auto;
+    border-radius: 12px;
+    border: 3px solid #ffb3d1;
+    background: linear-gradient(#ff3377, #ff80b3);
+}
+
+.projectile {
+    position: absolute;
+    z-index: 20;
+    font-size: 2.5rem;
+    /* Removed rotation animation as requested */
+}
+
+.giant-heart {
+    position: absolute;
+    font-size: 5rem;
+    z-index: 20;
+    animation: giantBeat 0.8s infinite alternate;
+    filter: drop-shadow(0 0 10px #ff3377);
+}
+
+@keyframes giantBeat {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+}
+
+.star-particle {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+    filter: blur(1px);
+}
+
+.lotus-pickup {
+    position: absolute;
+    font-size: 3rem;
+    z-index: 20;
+    animation: floatLotus 2s infinite ease-in-out;
+}
+
+@keyframes floatLotus {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.1); }
+}
+
+.planet {
+    position: absolute;
+    z-index: 18;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.2));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cloud {
+    position: absolute;
+    z-index: 1; /* Lowest z-index to stay behind everything */
+    pointer-events: none;
+    opacity: 0.4;
+    filter: blur(2px);
+    transition: opacity 0.5s ease;
+}
+
+.cloud.far {
+    z-index: 0;
+    opacity: 0.2;
+    filter: blur(5px);
+}
+
+.cloud.near {
+    z-index: 2;
+    opacity: 0.6;
+    filter: blur(1px);
+}
