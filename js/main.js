@@ -134,6 +134,7 @@ class GameManager {
         this.isGameOver = false;
         this.score = 0;
         this.updateScore();
+        this.achievements.resetToasts();
         this.pigeon.reset();
         this.entities.forEach(en => en.remove());
         this.entities = [];
@@ -297,6 +298,7 @@ class GameManager {
 
     updateScore() {
         this.ui.score.innerText = this.score;
+        this.achievements.checkUnlock(this.score);
         this.ui.score.classList.remove('bounce');
         void this.ui.score.offsetWidth; // Force reflow
         this.ui.score.classList.add('bounce');

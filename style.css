@@ -709,3 +709,36 @@ button:active {
     text-shadow: 0 0 15px rgba(255,182,193,0.8);
     text-align: center;
 }
+
+#high-score-display {
+    font-size: 1.1rem;
+    color: #ffb6c1;
+    margin: 5px 0 20px 0;
+    font-weight: bold;
+}
+
+.toast-notification {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 182, 193, 0.95);
+    color: #4B2C20;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    z-index: 2000;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast-notification.show {
+    top: 30px;
+}
+
+.toast-notification span {
+    font-size: 1.5rem;
+}

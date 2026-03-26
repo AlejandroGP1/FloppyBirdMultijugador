@@ -38,10 +38,17 @@
     <div id="game-over-screen" class="screen">
         <h2 class="bounce">✨ ¡Partida Terminada! ✨</h2>
         <p>Puntuación: <span id="final-score-val" class="heartbeat">0</span></p>
+        <p id="high-score-display">Tu mejor récord: <span id="high-score-val">0</span> 🏆</p>
         <p id="motivational-phrase">¡Sigue así, mi amor! 💖</p>
         <div id="over-decorations"></div>
-        <button id="restart-btn" class="premium-btn">¡Intentar de nuevo! 💖</button>
+        <div class="main-menu-btns">
+            <button id="restart-btn" class="premium-btn">¡Intentar de nuevo! 💖</button>
+            <button id="achievements-over-btn" class="premium-btn-small">Ver Logros 🏆</button>
+        </div>
     </div>
+
+    <!-- Notificación de Logro en vivo -->
+    <div id="achievement-toast" class="toast-notification"></div>
 
     <div id="game-screen" class="screen">
         <div id="score">Puntos: <span id="score-val">0</span></div>

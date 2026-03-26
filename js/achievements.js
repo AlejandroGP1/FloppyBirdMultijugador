@@ -12,6 +12,7 @@ export class AchievementManager {
             { pts: 609, icon: '🪷', name: 'Loto Eterno', phrase: 'Tu paz es mi hogar, te amo por siempre y para siempre 🕊️💜', color: '#ffb6c1' }
         ];
 
+        this.toastedMilestones = new Set();
         this.init();
     }
 
@@ -20,11 +21,29 @@ export class AchievementManager {
         this.detailScreen = document.getElementById('achievement-detail-screen');
         this.flowerContainer = document.getElementById('flower-container');
         this.phraseEl = document.getElementById('flower-phrase');
+        this.toastEl = document.getElementById('achievement-toast');
+        this.hScoreVal = document.getElementById('high-score-val');
 
         // Eventos de botones
         document.getElementById('achievements-btn').onclick = () => this.showGrid();
+        document.getElementById('achievements-over-btn').onclick = () => this.showGrid();
         document.getElementById('back-to-menu').onclick = () => this.gm.showScreen('start');
         document.getElementById('back-to-achievements').onclick = () => this.showGrid();
+    }
+
+    checkUnlock(score) {
+        this.milestones.forEach(m => {
+            if (score >= m.pts && !this.toastedMilestones.has(m.pts) && score > this.highScore) {
+                this.toastedMilestones.add(m.pts);
+                this.showToast(m);
+            }
+        });
+    }
+
+    showToast(m) {
+        this.toastEl.innerHTML = `<span>${m.icon}</span> ¡Has desbloqueado: ${m.name}! 🌸`;
+        this.toastEl.classList.add('show');
+        setTimeout(() => this.toastEl.classList.remove('show'), 4000);
     }
 
     updateHighScore(score) {
@@ -32,6 +51,11 @@ export class AchievementManager {
             this.highScore = score;
             localStorage.setItem('palomo_highscore', this.highScore);
         }
+        if (this.hScoreVal) this.hScoreVal.innerText = this.highScore;
+    }
+
+    resetToasts() {
+        this.toastedMilestones.clear();
     }
 
     showGrid() {
