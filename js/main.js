@@ -209,14 +209,6 @@ class GameManager {
         if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
         this.gameLoop = requestAnimationFrame((t) => this.update(t));
 
-        // Pre-llenar la pantalla con algunas estrellas iniciales
-        for (let i = 0; i < 15; i++) {
-            const s = new Star(this.ui.gameArea, Utils.random(1, 3));
-            s.x = Utils.random(0, 100);
-            s.el.style.left = `${s.x}%`;
-            this.entities.push(s);
-        }
-
         this.startSpawners();
     }
 
@@ -242,14 +234,8 @@ class GameManager {
         }, 1000);
 
         // Removed background cloud spawner as requested
+        // Removed parallax stars for mobile performance
 
-        // Generador de estrellas parallax (fondo profundo)
-        setInterval(() => {
-            if (!this.isGameOver) {
-                const s = new Star(this.ui.gameArea, Utils.random(1, 3));
-                this.entities.push(s);
-            }
-        }, 1200);
 
         // Generador de chispas ambientales para dar vida al fondo
         setInterval(() => {
@@ -494,7 +480,7 @@ class GameManager {
 
     // Gestiona qué pasa cuando la paloma toca algo
     handleCollision(en, eRect) {
-        if (en.type === 'projectile' || en.el?.classList.contains('obstacle')) {
+        if (en.type === 'projectile' || en.type === 'obstacle' || en.el?.classList.contains('obstacle')) {
             if (this.pigeon.isInvulnerable) {
                 if (en.remove) {
                     ParticleSystem.createExplosion(eRect.left, eRect.top, '#ff3377', 10);
