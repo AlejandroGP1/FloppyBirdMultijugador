@@ -84,14 +84,21 @@ export class AchievementManager {
         this.phraseEl.innerText = m.phrase;
         this.phraseEl.classList.remove('show');
         
+        // Reiniciar animaciones forzando un reflow
+        const svg = this.flowerContainer.querySelector('svg');
+        svg.style.display = 'none';
+        svg.offsetHeight; // Reflow
+        svg.style.display = 'block';
+
         setTimeout(() => {
             this.phraseEl.classList.add('show');
-        }, 3500); // Aparece casi al final del dibujo
+        }, 3500); 
     }
 
     getFlowerSVG(m) {
         let paths = '';
         const color = m.color;
+        const style = `style="filter: drop-shadow(0 0 5px ${color});"`;
 
         if (m.pts === 100) { // Margarita
             paths = `<circle cx="50" cy="50" r="8" fill="#ffd700" class="drawing-path" stroke="#ffd700" />`;
@@ -99,31 +106,29 @@ export class AchievementManager {
                 paths += `<ellipse cx="50" cy="25" rx="5" ry="15" fill="none" stroke="white" class="drawing-path" transform="rotate(${i * 45} 50 50)" />`;
             }
         } else if (m.pts === 200) { // Tulipán
-            paths = `<path d="M35 50 Q50 90 65 50 Q70 30 50 20 Q30 30 35 50" stroke="${color}" class="drawing-path" />
-                     <path d="M42 45 Q50 65 58 45" stroke="${color}" class="drawing-path" />`;
+            paths = `<path d="M35 50 Q50 90 65 50 Q75 25 50 15 Q25 25 35 50" stroke="${color}" class="drawing-path" fill="none" />
+                     <path d="M42 45 Q50 65 58 45" stroke="${color}" class="drawing-path" fill="none" />`;
         } else if (m.pts === 300) { // Rosa
-            paths = `<path d="M50 50 M50 20 C20 20 20 80 50 80 C80 80 80 20 50 20" stroke="${color}" class="drawing-path" />
-                     <path d="M50 35 C35 35 35 65 50 65 C65 65 65 35 50 35" stroke="${color}" class="drawing-path" />
-                     <path d="M50 45 C45 45 45 55 50 55 C55 55 55 45 50 45" stroke="${color}" class="drawing-path" />`;
+            paths = `<path d="M50 80 Q20 80 20 50 Q20 20 50 20 Q80 20 80 50 Q80 80 50 80 Z" stroke="${color}" class="drawing-path" fill="none" />
+                     <path d="M50 65 Q35 65 35 50 Q35 35 50 35 Q65 35 65 50 Q65 65 50 65 Z" stroke="${color}" class="drawing-path" fill="none" />
+                     <path d="M50 55 Q45 55 45 50 Q45 45 50 45 Q55 45 55 50 Q55 55 50 55 Z" stroke="${color}" class="drawing-path" fill="none" />`;
         } else if (m.pts === 400) { // Girasol
             paths = `<circle cx="50" cy="50" r="15" fill="#4B2C20" class="drawing-path" stroke="#4B2C20" />`;
             for(let i=0; i<16; i++) {
                 paths += `<path d="M50 35 L55 20 L50 15 L45 20 Z" fill="none" stroke="#ffd700" class="drawing-path" transform="rotate(${i * 22.5} 50 50)" />`;
             }
         } else if (m.pts === 500) { // Orquídea
-            paths = `<path d="M50 50 L30 20 Q50 10 70 20 Z" stroke="${color}" class="drawing-path" />
-                     <path d="M50 50 L20 60 Q50 80 80 60 Z" stroke="${color}" class="drawing-path" />
-                     <path d="M50 50 L50 80" stroke="${color}" class="drawing-path" />`;
+            paths = `<path d="M50 50 L30 15 Q50 5 70 15 Z" stroke="${color}" class="drawing-path" fill="none" />
+                     <path d="M50 50 L15 65 Q50 85 85 65 Z" stroke="${color}" class="drawing-path" fill="none" />
+                     <path d="M50 50 L50 90" stroke="${color}" class="drawing-path" fill="none" />`;
         } else if (m.pts === 609) { // Loto con Paloma
             for(let i=0; i<10; i++) {
-                paths += `<path d="M50 50 Q30 20 50 10 Q70 20 50 50" stroke="${color}" class="drawing-path" transform="rotate(${i * 36} 50 50)" />`;
-                paths += `<path d="M50 55 Q20 35 50 25 Q80 35 50 55" stroke="${color}" class="drawing-path" transform="rotate(${i * 36 + 18} 50 50)" />`;
+                paths += `<path d="M50 50 Q30 20 50 10 Q70 20 50 50" stroke="${color}" class="drawing-path" fill="none" transform="rotate(${i * 36} 50 50)" />
+                          <path d="M50 55 Q20 35 50 25 Q80 35 50 55" stroke="${color}" class="drawing-path" fill="none" transform="rotate(${i * 36 + 18} 50 50)" />`;
             }
-            // La paloma aparece al final (estática pero en el centro)
             paths += `<text x="50" y="58" font-size="20" text-anchor="middle" style="opacity:0; animation: fadeIn 1s forwards 4s;">🕊️</text>`;
-            paths += `<style>@keyframes fadeIn { to { opacity: 1; } }</style>`;
         }
 
-        return `<svg viewBox="0 0 100 100">${paths}</svg>`;
+        return `<svg viewBox="0 0 100 100" ${style}>${paths}</svg>`;
     }
 }

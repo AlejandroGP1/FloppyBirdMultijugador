@@ -907,8 +907,8 @@ button:active {
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-dasharray: 2000;
-    stroke-dashoffset: 2000;
+    stroke-dasharray: 500;
+    stroke-dashoffset: 500;
     animation: drawFlower 4s forwards cubic-bezier(0.4, 0, 0.2, 1);
 }
 

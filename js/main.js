@@ -114,6 +114,14 @@ class GameManager {
                 if (e.target === document.body) e.preventDefault();
                 this.pigeon.flap();
             }
+            // DEBUG: Presionar 'i' para desbloquear todo
+            if (e.key === 'i') {
+                this.achievements.updateHighScore(1000);
+                ParticleSystem.createPhrase(window.innerWidth / 2, window.innerHeight / 2, "¡MODO DEBUG ACTIVADO! 🏆");
+                if (this.screens.achievements.classList.contains('active')) {
+                    this.achievements.showGrid();
+                }
+            }
         });
     }
 
