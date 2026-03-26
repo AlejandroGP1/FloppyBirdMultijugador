@@ -37,15 +37,27 @@ export class MultiplayerManager {
     listenForPlayers() {
         onValue(this.playersRef, (snapshot) => {
             const players = snapshot.val();
-            if (!players) return;
+            let foundPartner = false;
 
-            // Buscamos a alguien que no sea yo
-            for (let id in players) {
-                if (id !== this.playerId) {
-                    this.partnerId = id;
-                    this.gm.updatePartnerData(players[id]);
-                    break;
+            if (players) {
+                const now = Date.now();
+                // Buscamos a alguien que no sea yo y que esté activo (lastSeen < 10s)
+                for (let id in players) {
+                    if (id !== this.playerId) {
+                        const p = players[id];
+                        if (now - p.lastSeen < 10000) { 
+                            this.partnerId = id;
+                            this.gm.updatePartnerData(p);
+                            foundPartner = true;
+                            break;
+                        }
+                    }
                 }
+            }
+
+            if (!foundPartner) {
+                this.partnerId = null;
+                this.gm.updatePartnerData(null);
             }
         });
     }

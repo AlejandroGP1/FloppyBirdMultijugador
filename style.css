@@ -591,3 +591,29 @@ button:active {
     opacity: 0.6;
     filter: blur(1px);
 }
+
+#revive-timer {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: #fff;
+    text-shadow: 0 0 10px #ff3377, 0 0 20px #ff3377, 0 0 30px #ff0000;
+    z-index: 1000;
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+    animation: pulse-revive 1s infinite;
+}
+
+#revive-count {
+    font-size: 5rem;
+    display: block;
+    color: #ffd700;
+}
+
+@keyframes pulse-revive {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+}

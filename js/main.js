@@ -14,7 +14,9 @@ class GameManager {
         this.ui = {
             score: document.getElementById('score-val'),
             finalScoreVal: document.getElementById('final-score-val'),
-            gameArea: document.getElementById('game-area')
+            gameArea: document.getElementById('game-area'),
+            reviveUI: document.getElementById('revive-timer'),
+            reviveCount: document.getElementById('revive-count')
         };
         this.pigeon = new Pigeon(document.getElementById('pigeon'));
         this.partner = new Pigeon(document.getElementById('partner-pigeon'), '🦆');
@@ -82,40 +84,56 @@ class GameManager {
 
     // Métodos para multijugador y reanimación
     updatePartnerData(data) {
-        if (!data) return;
+        if (!data) {
+            this.partner.el.style.opacity = '0';
+            return;
+        }
         this.partner.y = data.y;
         this.partner.velocity = data.velocity;
         this.partner.rotation = data.rotation;
         this.partner.isDead = data.isDead;
         this.partner.updateElement();
+        this.partner.el.style.opacity = '1';
     }
 
     checkRevival(deltaTime) {
+        if (this.isGameOver) return;
         const reviveTime = CONFIG.multiplayer.reviveTime;
+        const hasPartner = this.multiplayer.partnerId !== null;
 
-        // Si yo estoy muerto y el compañero vivo
-        if (this.pigeon.isDead && !this.partner.isDead) {
+        // Si yo estoy muerto
+        if (this.pigeon.isDead) {
+            if (!hasPartner || this.partner.isDead) {
+                // Si no hay compañero o ambos estamos muertos -> GAME OVER TOTAL
+                this.gameOver();
+                return;
+            }
+
+            // Si hay compañero vivo, empezamos/seguimos cuenta atrás
             this.pigeon.reviveTimer += deltaTime;
+            this.ui.reviveUI.style.display = 'block';
+            this.ui.reviveCount.innerText = Math.ceil((reviveTime - this.pigeon.reviveTimer) / 1000);
+
             if (this.pigeon.reviveTimer >= reviveTime) {
                 this.reviveHero(this.pigeon);
+                this.ui.reviveUI.style.display = 'none';
             }
         } else {
             this.pigeon.reviveTimer = 0;
+            // Solo ocultamos si el compañero tampoco está reviviendo (aunque el contador es compartido o individual, aquí lo ocultamos si YO estoy vivo)
+            if (!this.partner.isDead) this.ui.reviveUI.style.display = 'none';
         }
 
-        // Si el compañero está muerto y yo vivo
+        // Si el compañero está muerto y yo vivo (mostramos su progreso también)
         if (this.partner.isDead && !this.pigeon.isDead) {
             this.partner.reviveTimer += deltaTime;
+            this.ui.reviveUI.style.display = 'block';
+            this.ui.reviveCount.innerText = Math.ceil((reviveTime - this.partner.reviveTimer) / 1000);
+            
             if (this.partner.reviveTimer >= reviveTime) {
                 this.reviveHero(this.partner);
+                this.ui.reviveUI.style.display = 'none';
             }
-        } else {
-            this.partner.reviveTimer = 0;
-        }
-
-        // ¡GAME OVER REAL! Solo si ambos están muertos
-        if (this.pigeon.isDead && this.partner.isDead && !this.isGameOver) {
-            this.gameOver();
         }
     }
 
