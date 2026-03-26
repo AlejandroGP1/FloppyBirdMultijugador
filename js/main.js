@@ -2,13 +2,16 @@ import { CONFIG } from './config.js';
 import { Utils } from './utils.js';
 import { ParticleSystem } from './particles.js';
 import { Pigeon, Entity, Star } from './entities.js';
+import { AchievementManager } from './achievements.js';
 
 class GameManager {
     constructor() {
         this.screens = {
             start: document.getElementById('start-screen'),
             game: document.getElementById('game-screen'),
-            over: document.getElementById('game-over-screen')
+            over: document.getElementById('game-over-screen'),
+            achievements: document.getElementById('achievements-screen'),
+            detail: document.getElementById('achievement-detail-screen')
         };
         this.ui = {
             score: document.getElementById('score-val'),
@@ -23,6 +26,8 @@ class GameManager {
         this.lastTime = 0;
         this.gameLoop = null;
 
+        this.achievements = new AchievementManager(this);
+
         this.storm = {
             active: false,
             trigger: 30,
@@ -33,6 +38,13 @@ class GameManager {
         this.initEvents();
         this.startBgHearts();
         this.startMenuDecorations();
+    }
+
+    // Navegación entre pantallas
+    showScreen(screenId) {
+        Object.values(this.screens).forEach(s => s.classList.remove('active'));
+        const target = this.screens[screenId === 'start' ? 'start' : screenId.replace('-screen', '')];
+        if (target) target.classList.add('active');
     }
 
     // Crea emojis flotantes decorativos en los menús para que se vean más "guay"
@@ -130,9 +142,7 @@ class GameManager {
         this.storm.trigger = 30; // Puntos para activar la primera tormenta
         this.storm.overlay.classList.remove('active');
 
-        this.screens.start.classList.remove('active');
-        this.screens.over.classList.remove('active');
-        this.screens.game.classList.add('active');
+        this.showScreen('game');
 
         if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
         this.gameLoop = requestAnimationFrame((t) => this.update(t));
@@ -160,9 +170,6 @@ class GameManager {
                 this.updateScore();
             }
         }, 1000);
-
-        // Removed background cloud spawner as requested
-        // Removed parallax stars for mobile performance
 
         // Generador de chispas ambientales para dar vida al fondo
         setInterval(() => {
@@ -461,12 +468,12 @@ class GameManager {
         this.ui.gameArea.classList.add('shake');
 
         this.ui.finalScoreVal.innerText = this.score;
+        this.achievements.updateHighScore(this.score);
 
         setTimeout(() => {
             flash.remove();
             this.ui.gameArea.classList.remove('shake');
-            this.screens.game.classList.remove('active');
-            this.screens.over.classList.add('active');
+            this.showScreen('over');
         }, 600);
     }
 }
