@@ -7,11 +7,11 @@ import { AchievementManager } from './achievements.js';
 class GameManager {
     constructor() {
         this.screens = {
-            start: document.getElementById('start-screen'),
-            game: document.getElementById('game-screen'),
-            over: document.getElementById('game-over-screen'),
-            achievements: document.getElementById('achievements-screen'),
-            detail: document.getElementById('achievement-detail-screen')
+            'start-screen': document.getElementById('start-screen'),
+            'game-screen': document.getElementById('game-screen'),
+            'game-over-screen': document.getElementById('game-over-screen'),
+            'achievements-screen': document.getElementById('achievements-screen'),
+            'achievement-detail-screen': document.getElementById('achievement-detail-screen')
         };
         this.ui = {
             score: document.getElementById('score-val'),
@@ -43,7 +43,7 @@ class GameManager {
     // Navegación entre pantallas
     showScreen(screenId) {
         Object.values(this.screens).forEach(s => s.classList.remove('active'));
-        const target = this.screens[screenId === 'start' ? 'start' : screenId.replace('-screen', '')];
+        const target = this.screens[screenId];
         if (target) target.classList.add('active');
     }
 

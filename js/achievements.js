@@ -80,55 +80,69 @@ export class AchievementManager {
 
     showDetail(m) {
         this.gm.showScreen('achievement-detail-screen');
-        this.flowerContainer.innerHTML = this.getFlowerSVG(m);
+        this.flowerContainer.innerHTML = ''; // Limpiar anterior
         this.phraseEl.innerText = m.phrase;
         this.phraseEl.classList.remove('show');
-        
-        // Reiniciar animaciones forzando un reflow
-        const svg = this.flowerContainer.querySelector('svg');
-        svg.style.display = 'none';
-        svg.offsetHeight; // Reflow
-        svg.style.display = 'block';
+
+        // Dibujar flor paso a paso en 2D/3D simulado
+        this.drawFlower(m);
 
         setTimeout(() => {
-            this.phraseEl.classList.add('show');
-        }, 3500); 
+            if (this.detailScreen.classList.contains('active')) {
+                this.phraseEl.classList.add('show');
+            }
+        }, 3000);
     }
 
-    getFlowerSVG(m) {
-        let paths = '';
-        const color = m.color;
-        const style = `style="filter: drop-shadow(0 0 5px ${color});"`;
+    drawFlower(m) {
+        const center = document.createElement('div');
+        center.style.width = '30px';
+        center.style.height = '30px';
+        center.style.borderRadius = '50%';
+        center.style.background = m.color === '#ffffff' ? '#ffd700' : 'white';
+        center.style.position = 'absolute';
+        center.style.zIndex = '10';
+        center.style.boxShadow = `0 0 20px ${m.color}`;
+        center.classList.add('petal');
+        this.flowerContainer.appendChild(center);
+        setTimeout(() => center.classList.add('show'), 100);
 
-        if (m.pts === 100) { // Margarita
-            paths = `<circle cx="50" cy="50" r="8" fill="#ffd700" class="drawing-path" stroke="#ffd700" />`;
-            for(let i=0; i<8; i++) {
-                paths += `<ellipse cx="50" cy="25" rx="5" ry="15" fill="none" stroke="white" class="drawing-path" transform="rotate(${i * 45} 50 50)" />`;
-            }
-        } else if (m.pts === 200) { // Tulipán
-            paths = `<path d="M35 50 Q50 90 65 50 Q75 25 50 15 Q25 25 35 50" stroke="${color}" class="drawing-path" fill="none" />
-                     <path d="M42 45 Q50 65 58 45" stroke="${color}" class="drawing-path" fill="none" />`;
-        } else if (m.pts === 300) { // Rosa
-            paths = `<path d="M50 80 Q20 80 20 50 Q20 20 50 20 Q80 20 80 50 Q80 80 50 80 Z" stroke="${color}" class="drawing-path" fill="none" />
-                     <path d="M50 65 Q35 65 35 50 Q35 35 50 35 Q65 35 65 50 Q65 65 50 65 Z" stroke="${color}" class="drawing-path" fill="none" />
-                     <path d="M50 55 Q45 55 45 50 Q45 45 50 45 Q55 45 55 50 Q55 55 50 55 Z" stroke="${color}" class="drawing-path" fill="none" />`;
-        } else if (m.pts === 400) { // Girasol
-            paths = `<circle cx="50" cy="50" r="15" fill="#4B2C20" class="drawing-path" stroke="#4B2C20" />`;
-            for(let i=0; i<16; i++) {
-                paths += `<path d="M50 35 L55 20 L50 15 L45 20 Z" fill="none" stroke="#ffd700" class="drawing-path" transform="rotate(${i * 22.5} 50 50)" />`;
-            }
-        } else if (m.pts === 500) { // Orquídea
-            paths = `<path d="M50 50 L30 15 Q50 5 70 15 Z" stroke="${color}" class="drawing-path" fill="none" />
-                     <path d="M50 50 L15 65 Q50 85 85 65 Z" stroke="${color}" class="drawing-path" fill="none" />
-                     <path d="M50 50 L50 90" stroke="${color}" class="drawing-path" fill="none" />`;
-        } else if (m.pts === 609) { // Loto con Paloma
-            for(let i=0; i<10; i++) {
-                paths += `<path d="M50 50 Q30 20 50 10 Q70 20 50 50" stroke="${color}" class="drawing-path" fill="none" transform="rotate(${i * 36} 50 50)" />
-                          <path d="M50 55 Q20 35 50 25 Q80 35 50 55" stroke="${color}" class="drawing-path" fill="none" transform="rotate(${i * 36 + 18} 50 50)" />`;
-            }
-            paths += `<text x="50" y="58" font-size="20" text-anchor="middle" style="opacity:0; animation: fadeIn 1s forwards 4s;">🕊️</text>`;
+        const petalsCount = m.pts === 609 ? 12 : 8;
+        for (let i = 0; i < petalsCount; i++) {
+            setTimeout(() => {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                petal.style.width = m.pts === 609 ? '35px' : '30px';
+                petal.style.height = '70px';
+                petal.style.background = m.color;
+                petal.style.borderRadius = '20px 20px 0 0';
+                petal.style.position = 'absolute';
+                petal.style.bottom = '50%';
+                petal.style.left = 'calc(50% - 15px)';
+                petal.style.transformOrigin = 'bottom center';
+                petal.style.transform = `rotate(${i * (360 / petalsCount)}deg)`;
+                petal.style.opacity = '0';
+                petal.style.border = '1px solid rgba(0,0,0,0.1)';
+                
+                this.flowerContainer.appendChild(petal);
+                // Forzar animación
+                setTimeout(() => petal.classList.add('show'), 50);
+            }, i * 300); // 300ms entre pétalos
         }
 
-        return `<svg viewBox="0 0 100 100" ${style}>${paths}</svg>`;
+        // Caso especial Loto 609: Paloma en el centro
+        if (m.pts === 609) {
+            setTimeout(() => {
+                const pigeon = document.createElement('div');
+                pigeon.innerText = '🕊️';
+                pigeon.style.fontSize = '2.5rem';
+                pigeon.style.position = 'absolute';
+                pigeon.style.zIndex = '20';
+                pigeon.style.opacity = '0';
+                pigeon.style.transition = 'all 1s ease';
+                this.flowerContainer.appendChild(pigeon);
+                setTimeout(() => pigeon.style.opacity = '1', 100);
+            }, 4000);
+        }
     }
 }
