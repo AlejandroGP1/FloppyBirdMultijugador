@@ -19,7 +19,7 @@ class GameManager {
             gameArea: document.getElementById('game-area')
         };
         this.pigeon = new Pigeon(document.getElementById('pigeon'));
-        
+
         this.entities = [];
         this.score = 0;
         this.isGameOver = true;
@@ -167,7 +167,7 @@ class GameManager {
         // Suma 1 punto cada segundo
         this.scoreTimer = setInterval(() => {
             if (!this.isGameOver) {
-                this.score++;
+                this.score += 2;
                 this.updateScore();
             }
         }, 1000);
@@ -333,7 +333,7 @@ class GameManager {
         const tm = Math.min(deltaTime / 16.66, 3);
 
         this.pigeon.update(deltaTime, tm);
-        
+
         // Crear rastro de la paloma aleatoriamente
         if (Math.random() < 0.4) {
             const rect = this.pigeon.getRect();
