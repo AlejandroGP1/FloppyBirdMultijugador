@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orquídea Azul Realista</title>
+    <style>
+        :root {
+            --orchid-blue: #0066ff;
+            --orchid-dark: #001a4d;
+            --orchid-light: #80b3ff;
+            --center-gold: #ffcc00;
+            --stem-color: #2d5a27;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            /* Fondo oscuro con el resplandor cálido que te gusta */
+            background: radial-gradient(circle at center, #003561 0%, #050505 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1200px;
+        }
+
+        .garden {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor de la planta */
+        .plant {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-15deg);
+            animation: sway 6s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Tallos */
+        .stem {
+            position: absolute;
+            width: 6px;
+            background: linear-gradient(to bottom, var(--stem-color), #142a12);
+            border-radius: 3px;
+            transform-origin: bottom center;
+        }
+
+        /* Estructura de la Flor */
+        .flower {
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
+        /* Partes de la orquídea */
+        .part {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform-origin: bottom center;
+            opacity: 0.95;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
+        }
+
+        /* Sépalos (Fondo) */
+        .sepal {
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(to top, var(--orchid-dark), var(--orchid-blue));
+            border-radius: 50% 50% 45% 45%;
+            margin-left: -20px;
+        }
+
+        /* Pétalos (Laterales anchos) */
+        .petal {
+            width: 70px;
+            height: 85px;
+            background: linear-gradient(to top, var(--orchid-blue), var(--orchid-light));
+            border-radius: 50%;
+            margin-left: -35px;
+        }
+
+        /* Centro (Labelo) */
+        .labelo {
+            width: 35px;
+            height: 50px;
+            background: radial-gradient(circle, var(--center-gold) 20%, var(--orchid-dark) 80%);
+            border-radius: 40% 40% 50% 50%;
+            margin-left: -17.5px;
+            transform: rotateX(50deg) translateZ(10px);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+        }
+
+        /* Partículas doradas */
+        .particle {
+            position: absolute;
+            background: var(--center-gold);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.4;
+            box-shadow: 0 0 5px var(--center-gold);
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotateX(-15deg) rotateZ(-2deg); }
+            50% { transform: rotateX(-10deg) rotateZ(2deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="garden">
+        <div class="plant">
+            <div class="stem" style="height: 350px; transform: rotateZ(-10deg) translateY(100px);">
+                <div class="flower" id="flower1" style="top: 0;"></div>
+            </div>
+            
+            <div class="stem" style="height: 300px; transform: rotateZ(15deg) translateY(120px);">
+                <div class="flower" id="flower2" style="top: 0; transform: scale(0.8);"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function drawOrchid(id) {
+            const container = document.getElementById(id);
+
+            // 1. Dibujar 3 Sépalos (Fondo)
+            const sepals = [0, 120, 240];
+            sepals.forEach(angle => {
+                const s = document.createElement('div');
+                s.className = 'part sepal';
+                s.style.transform = `rotateZ(${angle}deg) rotateX(25deg)`;
+                container.appendChild(s);
+            });
+
+            // 2. Dibujar 2 Pétalos Laterales (Anchos)
+            const petals = [70, -70];
+            petals.forEach(angle => {
+                const p = document.createElement('div');
+                p.className = 'part petal';
+                p.style.transform = `rotateZ(${angle}deg) rotateX(50deg) translateZ(5px)`;
+                container.appendChild(p);
+            });
+
+            // 3. Dibujar el Centro (Labelo)
+            const l = document.createElement('div');
+            l.className = 'part labelo';
+            container.appendChild(l);
+        }
+
+        drawOrchid('flower1');
+        drawOrchid('flower2');
+
+        // Partículas doradas
+        function createParticles() {
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                const size = Math.random() * 3 + 'px';
+                p.style.width = size; p.style.height = size;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+                document.body.appendChild(p);
+                p.animate([
+                    { transform: 'translateY(0)', opacity: 0.5 },
+                    { transform: 'translateY(-100px)', opacity: 0 }
+                ], { duration: 4000 + Math.random() * 4000, iterations: Infinity });
+            }
+        }
+        createParticles();
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rosa 3D Carmesí</title>
+    <style>
+        :root {
+            --rose-main: #d40032;
+            --rose-dark: #800020;
+            --rose-light: #ff2e63;
+            --stem-color: #1a4d1a;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: radial-gradient(circle at center, #1a0505 0%, #050505 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .garden {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flower {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-15deg);
+            animation: swayRose 7s ease-in-out infinite;
+            margin-top: -120px;
+        }
+
+        /* Tallo con espinas */
+        .stem {
+            position: absolute;
+            width: 8px;
+            height: 400px;
+            background: linear-gradient(to bottom, var(--stem-color), #0a200a);
+            left: -4px;
+            top: 0;
+            border-radius: 4px;
+            transform-style: preserve-3d;
+        }
+
+        /* Espinas */
+        .thorn {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid var(--stem-color);
+            left: 6px;
+            transform: rotateZ(120deg);
+        }
+
+        /* Pétalos de Rosa */
+        .petal {
+            position: absolute;
+            background: linear-gradient(to top, var(--rose-dark) 0%, var(--rose-main) 50%, var(--rose-light) 100%);
+            border-radius: 50% 50% 40% 40%;
+            left: 50%;
+            bottom: 50%;
+            transform-origin: bottom center;
+            opacity: 0.95;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+
+        /* Partículas de pétalos cayendo */
+        .dust {
+            position: absolute;
+            background: var(--rose-light);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            filter: blur(1px);
+        }
+
+        @keyframes swayRose {
+            0%, 100% { transform: rotateX(-20deg) rotateZ(-2deg) rotateY(-3deg); }
+            50% { transform: rotateX(-10deg) rotateZ(2deg) rotateY(3deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="garden">
+        <div class="flower" id="rose">
+            <div class="stem">
+                <div class="thorn" style="top: 100px;"></div>
+                <div class="thorn" style="top: 180px; left: -14px; transform: rotateZ(-120deg);"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rose = document.getElementById('rose');
+
+        // Configuración de las capas de la rosa (cantidad, ancho, alto, inclinación, translateZ)
+        const layers = [
+            { count: 6, w: 40, h: 70, tilt: 20, z: 2 },  // Corazón (cerrado)
+            { count: 8, w: 60, h: 90, tilt: 45, z: 8 },  // Capa media
+            { count: 10, w: 80, h: 110, tilt: 70, z: 15 } // Capa exterior (abierta)
+        ];
+
+        layers.forEach((layer, index) => {
+            for (let i = 0; i < layer.count; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                const angle = (i * 360) / layer.count + (index * 20); // Desfase para que no se alineen perfectamente
+                
+                petal.style.width = layer.w + 'px';
+                petal.style.height = layer.h + 'px';
+                petal.style.left = -(layer.w / 2) + 'px';
+                petal.style.bottom = '0px';
+                
+                petal.style.transform = `
+                    rotateY(${angle}deg) 
+                    rotateX(${layer.tilt}deg) 
+                    translateZ(${layer.z}px)
+                `;
+
+                // Oscurecer un poco las capas internas
+                if (index < 2) {
+                    petal.style.filter = `brightness(${0.6 + (index * 0.2)})`;
+                }
+
+                rose.appendChild(petal);
+            }
+        });
+
+        // Partículas ambientales
+        function createDust() {
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                p.className = 'dust';
+                const size = Math.random() * 3 + 'px';
+                p.style.width = size;
+                p.style.height = size;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.top = Math.random() * 100 + 'vh';
+                
+                document.body.appendChild(p);
+                
+                p.animate([
+                    { transform: 'translate(0, 0)', opacity: 0.3 },
+                    { transform: `translate(${Math.random() * 50 - 25}px, 100px)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 5000 + 5000,
+                    iterations: Infinity
+                });
+            }
+        }
+
+        createDust();
+    </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Flor de Loto 3D Corregida</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // 1. ESCENA Y CÁMARA
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 1, 2);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // 2. LUCES (Fundamentales para que no se vea negro)
+        const light = new THREE.PointLight(0xffffff, 1.5, 100);
+        light.position.set(0, 5, 5);
+        scene.add(light);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const goldLight = new THREE.PointLight(0xffd700, 2, 10);
+        goldLight.position.set(0, 1, 0);
+        scene.add(goldLight);
+
+        // 3. MATEMÁTICAS DE LA GEOMETRÍA DEL PÉTALO
+        function createPetalGeometry(width, height) {
+            const shape = new THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.bezierCurveTo(width, height * 0.3, width, height * 0.7, 0, height);
+            shape.bezierCurveTo(-width, height * 0.7, -width, height * 0.3, 0, 0);
+
+            // Geometría con volumen
+            const geometry = new THREE.ExtrudeGeometry(shape, {
+                depth: 0.05,
+                bevelEnabled: true,
+                bevelSize: 0.02,
+                bevelThickness: 0.02
+            });
+
+            // Curvatura matemática de "cuchara"
+            const pos = geometry.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+                const y = pos.getY(i);
+                const z = pos.getZ(i);
+                pos.setZ(i, z + Math.pow(y / height, 2) * 0.5);
+            }
+            return geometry;
+        }
+
+        // 4. CREACIÓN DE LA FLOR (Capas concéntricas)
+        const lotus = new THREE.Group();
+        const layers = [
+            { count: 12, w: 0.3, h: 0.2, angle: 0, color: 0xE9BABA }, // Exterior
+            { count: 10, w: 0.3, h: 0.1, angle: 0, color: 0xF2C2C2 }, // Medio
+            { count: 8,  w: 0.4, h: 0.3, angle: 0, color: 0xFCFDF2 }  // Interior
+        ];
+
+        layers.forEach((layer, layerIdx) => {
+            const geo = createPetalGeometry(layer.w, layer.h);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: layer.color,
+                side: THREE.DoubleSide,
+                roughness: 0.4
+            });
+
+            for (let i = 0; i < layer.count; i++) {
+                const petal = new THREE.Mesh(geo, mat);
+                const step = (Math.PI * 2) / layer.count;
+                const currentAngle = i * step;
+
+                // Posicionamiento matemático orbital
+                petal.rotation.y = currentAngle;
+                petal.rotation.x = -layer.angle; // Apertura
+                
+                lotus.add(petal);
+            }
+        });
+
+        // 5. CENTRO DORADO
+        const coreGeo = new THREE.SphereGeometry(0.15, 20, 10);
+        const coreMat = new THREE.MeshStandardMaterial({ color: 0xffcc00, emissive: 0xffaa00 });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        core.position.y = 0.1;
+        lotus.add(core);
+
+        scene.add(lotus);
+
+        // 6. SUELO DE AGUA (Reflejo simple)
+        const waterGeo = new THREE.PlaneGeometry(20, 20);
+        const waterMat = new THREE.MeshStandardMaterial({ color: 0x00050a, roughness: 0.1 });
+        const water = new THREE.Mesh(waterGeo, waterMat);
+        water.rotation.x = -Math.PI / 2;
+        water.position.y = -0.1;
+        scene.add(water);
+
+        // 7. ANIMACIÓN
+        function animate() {
+            requestAnimationFrame(animate);
+            lotus.rotation.y += 0.005; // Giro suave
+            
+            // Efecto de respiración de luz
+            goldLight.intensity = 2 + Math.sin(Date.now() * 0.002);
+            
+            renderer.render(scene, camera);
+        }
+
+        // Ajuste de ventana
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
