@@ -285,7 +285,7 @@ class GameManager {
         this.storm.active = false;
         this.storm.overlay.classList.remove('active');
         this.screens['game-screen'].classList.remove('storm-active'); // Reanuda el ciclo normal
-        this.storm.nextAvailableTime = performance.now() + 15000; // Siguiente tormenta en 15s
+        this.storm.nextAvailableTime = performance.now() + 12000; // Siguiente tormenta en 15s
 
         // 💗 Corazón Gigante: +30 puntos
         const giant = new Entity(this.ui.gameArea, 'giant-heart', '💗');
