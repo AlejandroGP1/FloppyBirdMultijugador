@@ -30,8 +30,8 @@ class GameManager {
 
         this.storm = {
             active: false,
-            trigger: 30,
             count: 0,
+            nextAvailableTime: 0,
             overlay: document.getElementById('storm-overlay') || this.createStormOverlay()
         };
 
@@ -151,7 +151,7 @@ class GameManager {
         this.entities = [];
         this.lastTime = performance.now();
         this.storm.active = false;
-        this.storm.trigger = 30; // Puntos para activar la primera tormenta
+        this.storm.nextAvailableTime = this.lastTime + 15000; // Primera tormenta tras 15s
         this.storm.overlay.classList.remove('active');
 
         this.showScreen('game');
@@ -192,11 +192,6 @@ class GameManager {
     // Gestiona la aparición de obstáculos y eventos (como la tormenta)
     spawnManager() {
         if (this.isGameOver) return;
-
-        // Activa la tormenta si alcanzamos el puntaje necesario
-        if (this.score >= this.storm.trigger && !this.storm.active) {
-            this.activateStorm();
-        }
 
         // Si la tormenta está activa, gestionamos su fin y dificultad extra
         if (this.storm.active) {
@@ -289,8 +284,8 @@ class GameManager {
     deactivateStorm() {
         this.storm.active = false;
         this.storm.overlay.classList.remove('active');
-        this.screens.game.classList.remove('storm-active'); // Reanuda el ciclo normal
-        this.storm.trigger += 80; // Siguiente tormenta en +80 puntos
+        this.screens['game-screen'].classList.remove('storm-active'); // Reanuda el ciclo normal
+        this.storm.nextAvailableTime = performance.now() + 15000; // Siguiente tormenta en 15s
 
         // 💗 Corazón Gigante: +30 puntos
         const giant = new Entity(this.ui.gameArea, 'giant-heart', '💗');
@@ -361,6 +356,8 @@ class GameManager {
         if (this.storm.active) {
             if (Math.random() < 0.4 * tm) this.spawnRain();
             if (Math.random() < 0.02 * tm) this.spawnLightning();
+        } else if (timestamp >= this.storm.nextAvailableTime) {
+            this.activateStorm();
         }
 
         const pRect = this.pigeon.getRect();
