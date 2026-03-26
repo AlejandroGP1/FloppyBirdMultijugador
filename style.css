@@ -257,34 +257,13 @@ button:active {
     overflow: hidden;
 }
 
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    width: 100%;
-}
-
-.premium-btn.secondary {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    box-shadow: 0 8px 15px rgba(79, 172, 254, 0.4);
-}
-
-.premium-btn.secondary:hover {
-    box-shadow: 0 12px 20px rgba(79, 172, 254, 0.5);
-}
-
-#pigeon, #partner-pigeon {
+#pigeon {
     position: absolute;
     left: 40px;
     top: 50%;
     font-size: 3.5rem;
     transform: translateY(-50%);
     z-index: 25;
-}
-
-#partner-pigeon {
-    z-index: 24;
 }
 
 .obstacle {
@@ -607,30 +586,4 @@ button:active {
     z-index: 2;
     opacity: 0.6;
     filter: blur(1px);
-}
-
-#revive-timer {
-    position: absolute;
-    top: 35%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 3rem;
-    color: #fff;
-    text-shadow: 0 0 10px #ff3377, 0 0 20px #ff3377, 0 0 30px #ff0000;
-    z-index: 1000;
-    font-weight: bold;
-    text-align: center;
-    pointer-events: none;
-    animation: pulse-revive 1s infinite;
-}
-
-#revive-count {
-    font-size: 5rem;
-    display: block;
-    color: #ffd700;
-}
-
-@keyframes pulse-revive {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.1); }
 }

@@ -2,7 +2,6 @@ import { CONFIG } from './config.js';
 import { Utils } from './utils.js';
 import { ParticleSystem } from './particles.js';
 import { Pigeon, Entity, Star } from './entities.js';
-import { MultiplayerManager } from './multiplayer.js';
 
 class GameManager {
     constructor() {
@@ -14,20 +13,15 @@ class GameManager {
         this.ui = {
             score: document.getElementById('score-val'),
             finalScoreVal: document.getElementById('final-score-val'),
-            gameArea: document.getElementById('game-area'),
-            reviveUI: document.getElementById('revive-timer'),
-            reviveCount: document.getElementById('revive-count')
+            gameArea: document.getElementById('game-area')
         };
         this.pigeon = new Pigeon(document.getElementById('pigeon'));
-        this.partner = new Pigeon(document.getElementById('partner-pigeon'), '🦆');
         
         this.entities = [];
         this.score = 0;
         this.isGameOver = true;
         this.lastTime = 0;
         this.gameLoop = null;
-
-        this.multiplayer = new MultiplayerManager(this);
 
         this.storm = {
             active: false,
@@ -82,72 +76,6 @@ class GameManager {
         setTimeout(() => span.remove(), 2600);
     }
 
-    // Métodos para multijugador y reanimación
-    updatePartnerData(data) {
-        if (!data) {
-            this.partner.el.style.opacity = '0';
-            return;
-        }
-        this.partner.y = data.y;
-        this.partner.velocity = data.velocity;
-        this.partner.rotation = data.rotation;
-        this.partner.isDead = data.isDead;
-        this.partner.updateElement();
-        this.partner.el.style.opacity = '1';
-    }
-
-    checkRevival(deltaTime) {
-        if (this.isGameOver) return;
-        const reviveTime = CONFIG.multiplayer.reviveTime;
-        const hasPartner = this.multiplayer.partnerId !== null;
-
-        // Si yo estoy muerto
-        if (this.pigeon.isDead) {
-            if (!hasPartner || this.partner.isDead) {
-                // Si no hay compañero o ambos estamos muertos -> GAME OVER TOTAL
-                this.gameOver();
-                return;
-            }
-
-            // Si hay compañero vivo, empezamos/seguimos cuenta atrás
-            this.pigeon.reviveTimer += deltaTime;
-            this.ui.reviveUI.style.display = 'block';
-            this.ui.reviveCount.innerText = Math.ceil((reviveTime - this.pigeon.reviveTimer) / 1000);
-
-            if (this.pigeon.reviveTimer >= reviveTime) {
-                this.reviveHero(this.pigeon);
-                this.ui.reviveUI.style.display = 'none';
-            }
-        } else {
-            this.pigeon.reviveTimer = 0;
-            // Solo ocultamos si el compañero tampoco está reviviendo (aunque el contador es compartido o individual, aquí lo ocultamos si YO estoy vivo)
-            if (!this.partner.isDead) this.ui.reviveUI.style.display = 'none';
-        }
-
-        // Si el compañero está muerto y yo vivo (mostramos su progreso también)
-        if (this.partner.isDead && !this.pigeon.isDead) {
-            this.partner.reviveTimer += deltaTime;
-            this.ui.reviveUI.style.display = 'block';
-            this.ui.reviveCount.innerText = Math.ceil((reviveTime - this.partner.reviveTimer) / 1000);
-            
-            if (this.partner.reviveTimer >= reviveTime) {
-                this.reviveHero(this.partner);
-                this.ui.reviveUI.style.display = 'none';
-            }
-        }
-    }
-
-    reviveHero(hero) {
-        hero.isDead = false;
-        hero.reviveTimer = 0;
-        hero.velocity = -5; // Salto de alegría al revivir
-        hero.makeInvulnerable(2000); // 2 segundos de gracia
-        
-        // Efecto visual de revivir
-        ParticleSystem.createExplosion(hero.el.offsetLeft + 20, hero.el.offsetTop, '#ffffff', 20);
-        console.log("¡Héroe reanimado!");
-    }
-
     createStormOverlay() {
         const overlay = document.createElement('div');
         overlay.id = 'storm-overlay';
@@ -156,13 +84,8 @@ class GameManager {
     }
 
     initEvents() {
-        // Botones de inicio con rol
-        document.getElementById('start-p1-btn').onclick = () => this.start('p1');
-        document.getElementById('start-p2-btn').onclick = () => this.start('p2');
-        
-        // Botones de reinicio con rol
-        document.getElementById('restart-p1-btn').onclick = () => this.start('p1');
-        document.getElementById('restart-p2-btn').onclick = () => this.start('p2');
+        document.getElementById('start-btn').onclick = () => this.start();
+        document.getElementById('restart-btn').onclick = () => this.start();
 
         const handleAction = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
@@ -194,28 +117,12 @@ class GameManager {
         }, 500);
     }
 
-    // Se ejecuta al iniciar el juego con un rol específico
-    start(role) {
+    // Se ejecuta al iniciar el juego
+    start() {
         this.isGameOver = false;
         this.score = 0;
         this.updateScore();
-
-        // Configurar roles y emojis
-        this.multiplayer.setRole(role);
-        if (role === 'p1') {
-            this.pigeon.emoji = '🕊️';
-            this.partner.emoji = '🦆';
-        } else {
-            this.pigeon.emoji = '🦆';
-            this.partner.emoji = '🕊️';
-        }
-
-        // Aplicar emojis a los elementos
-        this.pigeon.el.querySelector('span').innerText = this.pigeon.emoji;
-        this.partner.el.querySelector('span').innerText = this.partner.emoji;
-
         this.pigeon.reset();
-        this.partner.reset();
         this.entities.forEach(en => en.remove());
         this.entities = [];
         this.lastTime = performance.now();
@@ -226,7 +133,6 @@ class GameManager {
         this.screens.start.classList.remove('active');
         this.screens.over.classList.remove('active');
         this.screens.game.classList.add('active');
-        this.ui.reviveUI.style.display = 'none';
 
         if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
         this.gameLoop = requestAnimationFrame((t) => this.update(t));
@@ -257,7 +163,6 @@ class GameManager {
 
         // Removed background cloud spawner as requested
         // Removed parallax stars for mobile performance
-
 
         // Generador de chispas ambientales para dar vida al fondo
         setInterval(() => {
@@ -418,33 +323,19 @@ class GameManager {
         // Multiplicador basado en el tiempo para fluidez
         const tm = Math.min(deltaTime / 16.66, 3);
 
-        // Actualizamos físicamente solo si no está "muerto" esperando reanimación
-        if (!this.pigeon.isDead) {
-            this.pigeon.update(deltaTime, tm);
-            
-            // Crear rastro de la paloma aleatoriamente
-            if (Math.random() < 0.4) {
-                const rect = this.pigeon.getRect();
-                ParticleSystem.createTrail(rect.left, rect.top + rect.height / 2, this.pigeon.rotation);
-            }
-
-            // Muerte por salir de límites
-            if (this.pigeon.y < -5 || this.pigeon.y > 105) {
-                this.handleCollision({ type: 'obstacle' }, this.pigeon.getRect());
-            }
-        } else {
-            // Si está muerto, cae lentamente
-            this.pigeon.velocity += 0.1 * tm; 
-            this.pigeon.y += this.pigeon.velocity * (deltaTime / 16);
-            if (this.pigeon.y > 100) this.pigeon.y = 100;
-            this.pigeon.updateElement();
+        this.pigeon.update(deltaTime, tm);
+        
+        // Crear rastro de la paloma aleatoriamente
+        if (Math.random() < 0.4) {
+            const rect = this.pigeon.getRect();
+            ParticleSystem.createTrail(rect.left, rect.top + rect.height / 2, this.pigeon.rotation);
         }
 
-        // Lógica de reanimación cooperativa
-        this.checkRevival(deltaTime);
-
-        // Enviar mi posición a la red
-        this.multiplayer.sendUpdate(this.pigeon, this.pigeon.isDead);
+        // Muerte por salir de límites
+        if (this.pigeon.y < -5 || this.pigeon.y > 105) {
+            this.gameOver();
+            return;
+        }
 
         // Efectos de tormenta (lluvia y rayos)
         if (this.storm.active) {
@@ -471,29 +362,27 @@ class GameManager {
                 continue;
             }
 
-            // Si yo estoy vivo, proceso colisiones con obstáculos/ítems
-            if (!this.pigeon.isDead) {
-                let eRect = en.getRect();
-                if (en.hitboxScale !== 1.0) {
-                    const centerW = eRect.left + eRect.width / 2;
-                    const centerH = eRect.top + eRect.height / 2;
-                    const newW = eRect.width * en.hitboxScale;
-                    const newH = eRect.height * en.hitboxScale;
-                    eRect = {
-                        left: centerW - newW / 2,
-                        right: centerW + newW / 2,
-                        top: centerH - newH / 2,
-                        bottom: centerH + newH / 2,
-                        width: newW,
-                        height: newH
-                    };
-                }
+            // Detección de colisión con hitbox ajustada
+            let eRect = en.getRect();
+            if (en.hitboxScale !== 1.0) {
+                const centerW = eRect.left + eRect.width / 2;
+                const centerH = eRect.top + eRect.height / 2;
+                const newW = eRect.width * en.hitboxScale;
+                const newH = eRect.height * en.hitboxScale;
+                eRect = {
+                    left: centerW - newW / 2,
+                    right: centerW + newW / 2,
+                    top: centerH - newH / 2,
+                    bottom: centerH + newH / 2,
+                    width: newW,
+                    height: newH
+                };
+            }
 
-                if (pBox.left < eRect.right && pBox.right > eRect.left &&
-                    pBox.top < eRect.bottom && pBox.bottom > eRect.top) {
-    
-                    this.handleCollision(en, eRect);
-                }
+            if (pBox.left < eRect.right && pBox.right > eRect.left &&
+                pBox.top < eRect.bottom && pBox.bottom > eRect.top) {
+
+                this.handleCollision(en, eRect);
             }
         }
 
@@ -502,7 +391,7 @@ class GameManager {
 
     // Gestiona qué pasa cuando la paloma toca algo
     handleCollision(en, eRect) {
-        if (en.type === 'projectile' || en.type === 'obstacle' || en.el?.classList.contains('obstacle')) {
+        if (en.type === 'projectile' || en.el?.classList.contains('obstacle')) {
             if (this.pigeon.isInvulnerable) {
                 if (en.remove) {
                     ParticleSystem.createExplosion(eRect.left, eRect.top, '#ff3377', 10);
@@ -510,19 +399,7 @@ class GameManager {
                 }
                 return;
             }
-
-            // Muerte cooperativa: Se queda flotando hasta ser reanimado
-            this.pigeon.isDead = true;
-            this.pigeon.velocity = 3; // Pequeño rebote de "muerte"
-            
-            ParticleSystem.createExplosion(this.pigeon.el.offsetLeft + 20, this.pigeon.el.offsetTop, '#ff0000', 15);
-            this.ui.gameArea.classList.add('shake');
-            setTimeout(() => this.ui.gameArea.classList.remove('shake'), 400);
-
-            // Si ambos están muertos, fin real
-            if (this.partner.isDead) {
-                this.gameOver();
-            }
+            this.gameOver();
         } else if (en.el?.classList.contains('heart-pickup')) {
             // Recoger corazón pequeño
             this.score += 5;

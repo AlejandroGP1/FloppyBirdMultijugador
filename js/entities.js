@@ -65,20 +65,13 @@ export class Star extends Entity {
  * La protagonista del juego: La Paloma 🕊️
  */
 export class Pigeon {
-    constructor(el, emoji = '🕊️') {
+    constructor(el) {
         this.el = el;
-        this.emoji = emoji;
         this.y = 50;         // Altura actual (centro de la pantalla)
         this.velocity = 0;   // Velocidad vertical actual (gravedad/vuelo)
         this.rotation = 0;   // Ángulo de inclinación
         this.isInvulnerable = false; // ¿Está en modo Dios?
         this.invulnTimer = 0;        // Tiempo restante de invulnerabilidad
-        this.isDead = false;         // ¿Está muerto esperando reanimación?
-        this.reviveTimer = 0;        // Tiempo que lleva el compañero vivo solo
-
-        // Seteamos el emoji inicial si existe un span interno
-        const span = this.el.querySelector('span');
-        if (span) span.innerText = this.emoji;
     }
 
     // Reinicia a la paloma para una nueva partida
@@ -87,8 +80,6 @@ export class Pigeon {
         this.velocity = 0;
         this.rotation = 0;
         this.isInvulnerable = false;
-        this.isDead = false;
-        this.reviveTimer = 0;
         this.el.classList.remove('invulnerable');
         this.el.style.opacity = '1';
         this.updateElement();
@@ -138,15 +129,7 @@ export class Pigeon {
         this.el.style.top = `${this.y}%`;
         // Forzamos display inline-block para asegurar que la transformación se aplique bien al emoji
         this.el.style.display = 'inline-block';
-        
-        // Si está muerto, bajamos opacidad
-        if (this.isDead) {
-            this.el.style.opacity = '0.3';
-            this.el.style.transform = `translateY(-50%) rotate(180deg) scale(0.8)`;
-        } else {
-            this.el.style.opacity = '1';
-            this.el.style.transform = `translateY(-50%) rotate(${this.rotation}deg) scale(${scaleX}, ${scaleY})`;
-        }
+        this.el.style.transform = `translateY(-50%) rotate(${this.rotation}deg) scale(${scaleX}, ${scaleY})`;
     }
 
     getRect() { return this.el.getBoundingClientRect(); }

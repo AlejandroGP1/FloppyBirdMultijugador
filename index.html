@@ -15,31 +15,25 @@
         <h1 class="glow-text">✨ Mini Regalo 🌸</h1>
         <p>🕊️ La Paloma de Isa 🕊️</p>
         <div id="start-decorations"></div>
-        <div class="button-group">
-            <button id="start-p1-btn" class="premium-btn">Jugador 1 🕊️</button>
-            <button id="start-p2-btn" class="premium-btn secondary">Jugador 2 🦆</button>
-        </div>
+        <button id="start-btn" class="premium-btn">¡Empezar Juego! ✨</button>
+    </div>
+
+    <div id="game-over-screen" class="screen">
+        <h2 class="bounce">✨ ¡Partida Terminada! ✨</h2>
+        <p>Puntuación: <span id="final-score-val" class="heartbeat">0</span></p>
+        <p id="motivational-phrase">¡Sigue así, mi amor! 💖</p>
+        <div id="over-decorations"></div>
+        <button id="restart-btn" class="premium-btn">¡Intentar de nuevo! 💖</button>
     </div>
 
     <div id="game-screen" class="screen">
         <div id="score">Puntos: <span id="score-val">0</span></div>
         <div id="game-area">
             <div class="invuln-aura"></div>
-            <!-- Marcador de reanimación -->
-            <div id="revive-timer" style="display: none;">REANIMANDO EN: <span id="revive-count">5</span></div>
-            <!-- El compañero (detrás) -->
-            <div id="partner-pigeon" style="z-index: 24; opacity: 0;"><span style="display:inline-block; transform: scaleX(-1);">🦆</span></div>
             <!-- Jugador principal -->
             <div id="pigeon"><span style="display:inline-block; transform: scaleX(-1);">🕊️</span></div>
         </div>
         <button id="flap-btn">¡Vuela!</button>
-    </div>
-
-    <div id="game-over-screen" class="screen">
-        <h2>¡Oh no!</h2>
-        <p>Tu palomita se cansó.</p>
-        <p>Puntuación: <span id="final-score-val">0</span> 💖</p>
-        <button id="restart-btn">Intentar de nuevo</button>
     </div>
 
     <script type="module" src="js/main.js"></script>

@@ -27,23 +27,5 @@ export const CONFIG = {
     // Emojis de las nubes (desactivadas pero aquí por si las quieres)
     cloudSymbols: ['☁️', '💨', '🌫️'],
     cloudMinSize: 8,
-    cloudMaxSize: 15,
-
-    // Configuración de Firebase (proporcionada por el usuario)
-    firebaseConfig: {
-        apiKey: "AIzaSyBzQlYDusO4y518jIG0KPpyeq-dyBGrWDw",
-        authDomain: "flappymulti-29d9a.firebaseapp.com",
-        projectId: "flappymulti-29d9a",
-        storageBucket: "flappymulti-29d9a.firebasestorage.app",
-        messagingSenderId: "392540646214",
-        appId: "1:392540646214:web:dbd46c128a3ef398e8d347",
-        measurementId: "G-21H47BVYC7",
-        databaseURL: "https://flappymulti-29d9a-default-rtdb.firebaseio.com/"
-    },
-
-    // Ajustes multijugador
-    multiplayer: {
-        reviveTime: 5000, // 5 segundos para revivir
-        syncRate: 50      // ms entre actualizaciones de red
-    }
+    cloudMaxSize: 15
 };
