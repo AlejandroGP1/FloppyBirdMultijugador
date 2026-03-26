@@ -156,8 +156,13 @@ class GameManager {
     }
 
     initEvents() {
-        document.getElementById('start-btn').onclick = () => this.start();
-        document.getElementById('restart-btn').onclick = () => this.start();
+        // Botones de inicio con rol
+        document.getElementById('start-p1-btn').onclick = () => this.start('p1');
+        document.getElementById('start-p2-btn').onclick = () => this.start('p2');
+        
+        // Botones de reinicio con rol
+        document.getElementById('restart-p1-btn').onclick = () => this.start('p1');
+        document.getElementById('restart-p2-btn').onclick = () => this.start('p2');
 
         const handleAction = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
@@ -189,12 +194,28 @@ class GameManager {
         }, 500);
     }
 
-    // Se ejecuta al iniciar el juego
-    start() {
+    // Se ejecuta al iniciar el juego con un rol específico
+    start(role) {
         this.isGameOver = false;
         this.score = 0;
         this.updateScore();
+
+        // Configurar roles y emojis
+        this.multiplayer.setRole(role);
+        if (role === 'p1') {
+            this.pigeon.emoji = '🕊️';
+            this.partner.emoji = '🦆';
+        } else {
+            this.pigeon.emoji = '🦆';
+            this.partner.emoji = '🕊️';
+        }
+
+        // Aplicar emojis a los elementos
+        this.pigeon.el.querySelector('span').innerText = this.pigeon.emoji;
+        this.partner.el.querySelector('span').innerText = this.partner.emoji;
+
         this.pigeon.reset();
+        this.partner.reset();
         this.entities.forEach(en => en.remove());
         this.entities = [];
         this.lastTime = performance.now();
@@ -205,6 +226,7 @@ class GameManager {
         this.screens.start.classList.remove('active');
         this.screens.over.classList.remove('active');
         this.screens.game.classList.add('active');
+        this.ui.reviveUI.style.display = 'none';
 
         if (this.gameLoop) cancelAnimationFrame(this.gameLoop);
         this.gameLoop = requestAnimationFrame((t) => this.update(t));

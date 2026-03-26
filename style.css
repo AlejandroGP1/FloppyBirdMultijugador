@@ -257,6 +257,23 @@ button:active {
     overflow: hidden;
 }
 
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    width: 100%;
+}
+
+.premium-btn.secondary {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 8px 15px rgba(79, 172, 254, 0.4);
+}
+
+.premium-btn.secondary:hover {
+    box-shadow: 0 12px 20px rgba(79, 172, 254, 0.5);
+}
+
 #pigeon, #partner-pigeon {
     position: absolute;
     left: 40px;
